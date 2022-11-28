@@ -32,8 +32,6 @@ public class TransactionServiceImpl implements TransactionService {
     public Transactions createTransaction(TransactionRequest transactionRequest) {
         Transactions transactions = new Transactions();
         Optional<User> userOptional = userRepository.findById(transactionRequest.getUserId());
-        Optional<FlightSchedule> flightSchedule = flightScheduleRepository.findById(transactionRequest.getFlightId());
-        Optional<FlightSchedule> returnFlightSchedule = flightScheduleRepository.findById(transactionRequest.getReturnFlightId());
         if (Objects.nonNull(transactionRequest.getFlightId()) || Objects.nonNull(transactionRequest.getReturnFlightId())){
             if (userOptional.isPresent()) {
                 transactions.setUser(userOptional.get());
@@ -45,19 +43,25 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         if (Objects.nonNull(transactions.getId())) {
-            if (flightSchedule.isPresent()) {
-                FlightBooking flightBooking = new FlightBooking();
-                flightBooking.setFlightSchedule(flightSchedule.get());
-                flightBooking.setCount(transactionRequest.getFlightPassengers());
-                flightBooking.setTransactions(transactions);
-                flightBookingRepository.save(flightBooking);
+            if (Objects.nonNull(transactionRequest.getFlightId())) {
+                Optional<FlightSchedule> flightSchedule = flightScheduleRepository.findById(transactionRequest.getFlightId());
+                if (flightSchedule.isPresent()) {
+                    FlightBooking flightBooking = new FlightBooking();
+                    flightBooking.setFlightSchedule(flightSchedule.get());
+                    flightBooking.setCount(transactionRequest.getFlightPassengers());
+                    flightBooking.setTransactions(transactions);
+                    flightBookingRepository.save(flightBooking);
+                }
             }
-            if (returnFlightSchedule.isPresent()) {
-                FlightBooking flightBooking = new FlightBooking();
-                flightBooking.setFlightSchedule(returnFlightSchedule.get());
-                flightBooking.setCount(transactionRequest.getReturnFlightPassengers());
-                flightBooking.setTransactions(transactions);
-                flightBookingRepository.save(flightBooking);
+            if (Objects.nonNull(transactionRequest.getReturnFlightId())) {
+                Optional<FlightSchedule> returnFlightSchedule = flightScheduleRepository.findById(transactionRequest.getReturnFlightId());
+                if (returnFlightSchedule.isPresent()) {
+                    FlightBooking flightBooking = new FlightBooking();
+                    flightBooking.setFlightSchedule(returnFlightSchedule.get());
+                    flightBooking.setCount(transactionRequest.getReturnFlightPassengers());
+                    flightBooking.setTransactions(transactions);
+                    flightBookingRepository.save(flightBooking);
+                }
             }
         }
 
