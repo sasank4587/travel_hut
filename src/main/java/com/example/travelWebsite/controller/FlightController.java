@@ -1,0 +1,38 @@
+package com.example.travelWebsite.controller;
+
+import com.example.travelWebsite.request.FlightSearchRequest;
+import com.example.travelWebsite.response.ErrorResponse;
+import com.example.travelWebsite.service.FlightService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@CrossOrigin
+@RequestMapping(path = "/flights")
+public class FlightController {
+
+    @Autowired
+    private FlightService flightService;
+
+    @PostMapping(path = "/search")
+    private ResponseEntity<?> showFLights(@RequestBody FlightSearchRequest flightSearchRequest){
+        try {
+            return new ResponseEntity<>(flightService.showFlights(flightSearchRequest), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(path = "/{flightId}")
+    private ResponseEntity<?> getFlightDetails(@PathVariable(value = "flightId") Integer id){
+        try {
+            return new ResponseEntity<>(flightService.getFlightDetails(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}
