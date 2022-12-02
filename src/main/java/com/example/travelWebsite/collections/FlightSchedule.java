@@ -59,4 +59,7 @@ public class FlightSchedule implements Serializable {
 
     @Column(name = "AVAILABILITY")
     private Integer availability;
+
+    @Column(name = "MILEAGE")
+    private double mileage;
 }

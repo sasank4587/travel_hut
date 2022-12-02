@@ -12,6 +12,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table( name  = "TRANSACTIONS")
@@ -42,6 +43,8 @@ public class Transactions implements Serializable {
     private double totalCostPaid;
 
     private double tax;
+
+    private LocalDateTime transactionDate;
 
     @NotFound(action = NotFoundAction.IGNORE)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)

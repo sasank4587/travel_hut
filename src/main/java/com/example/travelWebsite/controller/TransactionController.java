@@ -28,4 +28,14 @@ public class TransactionController {
         }
     }
 
+    @GetMapping(path = "/{userId}")
+    private ResponseEntity<?> getAllTransactions(@PathVariable(value = "userId") Integer userId){
+        try {
+            return new ResponseEntity<>(transactionService.getAllTransactionsForUser(userId), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

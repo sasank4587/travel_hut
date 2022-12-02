@@ -26,5 +26,6 @@ public class FlightResponse {
     private Time startTime;
     private Date endDate;
     private Time endTime;
+    private double miles;
 
 }
