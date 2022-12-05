@@ -41,15 +41,31 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private HotelBookingRepository hotelBookingRepository;
 
+    @Autowired
+    private PromoCodeRepository promoCodeRepository;
+
     @Override
     public Transactions createTransaction(TransactionRequest transactionRequest) {
         Transactions transactions = new Transactions();
         Optional<User> userOptional = userRepository.findById(transactionRequest.getUserId());
+        User user = new User();
         if (Objects.nonNull(transactionRequest.getFlightId()) || Objects.nonNull(transactionRequest.getReturnFlightId()) || Objects.nonNull(transactionRequest.getHotelRoomId())){
             if (userOptional.isPresent()) {
-                transactions.setUser(userOptional.get());
+                if(Objects.nonNull(transactionRequest.getPromoCode())){
+                    Optional<PromoCode> promoCodeOptional = promoCodeRepository.findById(transactionRequest.getPromoCode());
+                    if (promoCodeOptional.isPresent()) {
+                        transactions.setPromoCode(promoCodeOptional.get());
+                    }
+                }
+                user = userOptional.get();
+                user.setTravelMileage(transactionRequest.getRemainingMileage());
+                user = userRepository.save(user);
+                transactions.setUser(user);
                 transactions.setPaymentInfo(paymentInfoRepository.findByUserAndIsDefault(userOptional.get(),true));
                 transactions.setTax(transactionRequest.getTaxPrice());
+                transactions.setDiscountPrice(transactionRequest.getDiscountPrice());
+                transactions.setRedeemedPrice(transactionRequest.getRedeemedPrice());
+                transactions.setOfferPrice(transactionRequest.getOfferPrice());
                 transactions.setTotalCost(transactionRequest.getPrice());
                 transactions.setTotalCostPaid(transactionRequest.getPaidPrice());
                 transactions.setTransactionDate(LocalDateTime.now());
@@ -57,7 +73,6 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
         if (Objects.nonNull(transactions.getId())) {
-            User user = userOptional.get();
             double mileage = user.getTravelMileage();
             if (Objects.nonNull(transactionRequest.getFlightId())) {
                 Optional<FlightSchedule> flightSchedule = flightScheduleRepository.findById(transactionRequest.getFlightId());

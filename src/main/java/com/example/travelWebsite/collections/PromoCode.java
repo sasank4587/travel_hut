@@ -59,4 +59,8 @@ public class PromoCode implements Serializable {
 
     @Column(name = "END_DATE_TIME")
     private Date endDate;
+
+    private double price;
+
+    private double mileage;
 }

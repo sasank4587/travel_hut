@@ -33,10 +33,12 @@ public class FlightServiceImpl implements FlightService {
     public FlightSearchResponse showFlights(FlightSearchRequest flightSearchRequest) {
         FlightCommandRequest flightCommandRequest = convertRequest(flightSearchRequest);
         List<FlightSchedule> flightScheduleList = flightScheduleRepository.findBySourceCityAndDestinationCityAndStartDate(flightCommandRequest.getSourceCity(),flightCommandRequest.getDestinationCity(),flightCommandRequest.getStartDate());
+//        List<FlightSchedule> flightScheduleList = flightScheduleRepository.findAll();
         FlightSearchResponse flightSearchResponse = new FlightSearchResponse();
         flightSearchResponse.setFlightList(convertFlightResponse(flightScheduleList));
         if (flightCommandRequest.isReturn()) {
             List<FlightSchedule> returnFlightScheduleList = flightScheduleRepository.findBySourceCityAndDestinationCityAndStartDate(flightCommandRequest.getDestinationCity(),flightCommandRequest.getSourceCity(),flightCommandRequest.getReturnDate());
+//            List<FlightSchedule> returnFlightScheduleList = flightScheduleRepository.findAll();
             flightSearchResponse.setReturnFlightList(convertFlightResponse(returnFlightScheduleList));
         }
         return flightSearchResponse;

@@ -25,4 +25,8 @@ public class TransactionRequest {
     private double taxPrice;
     private Integer promoCode;
     private double paidPrice;
+    private double remainingMileage;
+    private double discountPrice;
+    private double redeemedPrice;
+    private double offerPrice;
 }

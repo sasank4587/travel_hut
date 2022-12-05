@@ -38,6 +38,7 @@ public class HotelServiceImpl implements HotelService {
         HotelSearchResponse hotelSearchResponse = new HotelSearchResponse();
         City city = cityRepository.findByCityName(hotelSearchRequest.getSourceCity());
         List<Hotel> hotels = hotelRepository.findByCity(city);
+//        List<Hotel> hotels = hotelRepository.findAll();
         List<HotelResponse> hotelResponses = hotels.stream().map(this::convertHotelResponse).collect(Collectors.toList());
         hotelSearchResponse.setHotelResponseList(hotelResponses);
         hotelSearchResponse.setNumberOfDays(number);

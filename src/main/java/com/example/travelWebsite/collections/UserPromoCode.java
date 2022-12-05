@@ -11,16 +11,14 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Entity
-@Table( name  = "TRANSACTIONS")
+@Table( name  = "USER_PROMO_CODE")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transactions implements Serializable {
+public class UserPromoCode {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -28,29 +26,10 @@ public class Transactions implements Serializable {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "PAYMENT_INFO_ID", nullable = true)
-    @JsonIgnore
-    private PaymentInfo paymentInfo;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "USER_ID", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private User user;
-
-    private double totalCost;
-
-    private double totalCostPaid;
-
-    private double tax;
-
-    private double discountPrice;
-
-    private double redeemedPrice;
-
-    private double offerPrice;
-
-    private LocalDateTime transactionDate;
 
     @NotFound(action = NotFoundAction.IGNORE)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
