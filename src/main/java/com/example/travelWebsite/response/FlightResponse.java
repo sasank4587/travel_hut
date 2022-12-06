@@ -27,5 +27,6 @@ public class FlightResponse {
     private Date endDate;
     private Time endTime;
     private double miles;
+    private String flightReference;
 
 }

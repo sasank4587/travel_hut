@@ -62,4 +62,7 @@ public class FlightSchedule implements Serializable {
 
     @Column(name = "MILEAGE")
     private double mileage;
+
+    @Column(name = "FLIGHT_REFERENCE", unique = true)
+    private String flightReference;
 }

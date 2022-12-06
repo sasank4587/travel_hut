@@ -1,12 +1,15 @@
 package com.example.travelWebsite.impl;
 
+import com.example.travelWebsite.collections.Feedback;
 import com.example.travelWebsite.collections.PaymentInfo;
 import com.example.travelWebsite.collections.User;
 import com.example.travelWebsite.exception.PaymentMethodAlreadyExists;
 import com.example.travelWebsite.exception.UserAlreadyExists;
 import com.example.travelWebsite.exception.UserDoesNotExist;
+import com.example.travelWebsite.repository.FeedbackRepository;
 import com.example.travelWebsite.repository.PaymentInfoRepository;
 import com.example.travelWebsite.repository.UserRepository;
+import com.example.travelWebsite.request.AddFeedbackRequest;
 import com.example.travelWebsite.request.AuthenticationRequest;
 import com.example.travelWebsite.request.PaymentRequest;
 import com.example.travelWebsite.request.UserRequest;
@@ -28,6 +31,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PaymentInfoRepository paymentInfoRepository;
 
+    @Autowired
+    private FeedbackRepository feedbackRepository;
+
     @Override
     public UserProfileResponse addUser(UserRequest userRequest) throws UserAlreadyExists {
         Optional<User> userObject = userRepository.findByUserName(userRequest.getUserName());
@@ -43,7 +49,7 @@ public class UserServiceImpl implements UserService {
             user.setPassword(userRequest.getPassword());
             User userEntity = userRepository.save(user);
             if (Objects.nonNull(userEntity.getId())) {
-                addPaymentMethod(userEntity, userRequest.getCardNumber(), userRequest.getNameOnTheCard(), userRequest.getExpiryDate(), userRequest.getSecurityCode(), true);
+                addPaymentMethod(userEntity, userRequest.getCardNumber(), userRequest.getNameOnTheCard(), userRequest.getExpiryDate(), userRequest.getSecurityCode(), true, userRequest.getPaymentName());
                 return getProfileDetails(userEntity);
             }
         }
@@ -60,15 +66,39 @@ public class UserServiceImpl implements UserService {
                 paymentInfo.setDefault(false);
                 paymentInfoRepository.save(paymentInfo);
             }
-            PaymentInfo paymentInfo = paymentInfoRepository.findByUserAndCardNumber(user,paymentRequest.getCardNumber());
+            PaymentInfo paymentInfo = paymentInfoRepository.findByUserAndCardNumber(user, paymentRequest.getCardNumber());
             if (Objects.nonNull(paymentInfo.getId())) {
-                addPaymentMethod(user, paymentRequest.getCardNumber(), paymentRequest.getNameOnTheCard(), paymentRequest.getExpiryDate(), paymentRequest.getSecurityCode(), paymentRequest.isDefault());
+                addPaymentMethod(user, paymentRequest.getCardNumber(), paymentRequest.getNameOnTheCard(), paymentRequest.getExpiryDate(), paymentRequest.getSecurityCode(), paymentRequest.isDefault(), paymentRequest.getPaymentName());
             } else {
                 throw new PaymentMethodAlreadyExists("Payment method already exists");
             }
             List<PaymentInfo> paymentInfos = paymentInfoRepository.findByUser(user);
 
             return convertPayments(paymentInfos);
+        } else {
+            throw new UserDoesNotExist("This user does not exist.");
+        }
+    }
+
+    @Override
+    public List<PaymentMethods> makePaymentDefault(Integer paymentId, Integer id) throws PaymentMethodAlreadyExists, UserDoesNotExist {
+        Optional<User> userObject = userRepository.findById(id);
+        if (userObject.isPresent()) {
+            Optional<PaymentInfo> defaultOptional = paymentInfoRepository.findById(paymentId);
+            if (defaultOptional.isPresent()) {
+                User user = userObject.get();
+                PaymentInfo paymentInfo = paymentInfoRepository.findByUserAndIsDefault(user, true);
+                paymentInfo.setDefault(false);
+                paymentInfoRepository.save(paymentInfo);
+                PaymentInfo paymentInfo1 = defaultOptional.get();
+                paymentInfo1.setDefault(true);
+                paymentInfoRepository.save(paymentInfo1);
+                List<PaymentInfo> paymentInfos = paymentInfoRepository.findByUser(user);
+
+                return convertPayments(paymentInfos);
+            } else {
+                throw new PaymentMethodAlreadyExists("Payment method already exists");
+            }
         } else {
             throw new UserDoesNotExist("This user does not exist.");
         }
@@ -104,7 +134,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> foundedUser = userRepository.findByUserName(authenticationRequest.getUsername());
         if (!foundedUser.isPresent()) {
             throw new Exception();
-        } else if(!authenticationRequest.getPassword().equalsIgnoreCase(foundedUser.get().getPassword())){
+        } else if (!authenticationRequest.getPassword().equalsIgnoreCase(foundedUser.get().getPassword())) {
             throw new Exception();
         }
     }
@@ -117,6 +147,25 @@ public class UserServiceImpl implements UserService {
             return getProfileDetails(user);
         }
         return null;
+    }
+
+    @Override
+    public boolean addFeedback(AddFeedbackRequest addFeedbackRequest) {
+        User user = new User();
+        if (Objects.nonNull(addFeedbackRequest.getUserId())) {
+            Optional<User> userObject = userRepository.findById(Integer.valueOf(addFeedbackRequest.getUserId()));
+            if (userObject.isPresent()) {
+                user = userObject.get();
+            }
+        } else {
+            user = null;
+        }
+        Feedback feedback = new Feedback();
+        feedback.setUser(user);
+        feedback.setOption(addFeedbackRequest.getOption());
+        feedback.setComments(addFeedbackRequest.getComments());
+        feedbackRepository.save(feedback);
+        return true;
     }
 
 //    @Override
@@ -138,7 +187,7 @@ public class UserServiceImpl implements UserService {
         return profileResponse;
     }
 
-    private void addPaymentMethod(User user, String cardNumber, String name, Date expiryDate, String securityCode, boolean isDefault) {
+    private void addPaymentMethod(User user, String cardNumber, String name, Date expiryDate, String securityCode, boolean isDefault, String paymentName) {
         PaymentInfo paymentInfo = new PaymentInfo();
         paymentInfo.setUser(user);
         paymentInfo.setDefault(isDefault);
@@ -146,13 +195,14 @@ public class UserServiceImpl implements UserService {
         paymentInfo.setCardNumber(cardNumber);
         paymentInfo.setCardExpiryDate(expiryDate);
         paymentInfo.setSecurityCode(securityCode);
+        paymentInfo.setPaymentName(paymentName);
         paymentInfoRepository.save(paymentInfo);
     }
 
-    private List<PaymentMethods> convertPayments(List<PaymentInfo> paymentInfos){
+    private List<PaymentMethods> convertPayments(List<PaymentInfo> paymentInfos) {
 
         return paymentInfos.stream().map(paymentInfo -> {
-            return new PaymentMethods(paymentInfo.getCardNumber(),paymentInfo.getNameOnTheCard(),paymentInfo.getCardExpiryDate(),paymentInfo.getSecurityCode(),paymentInfo.isDefault());
+            return new PaymentMethods(paymentInfo.getId(), paymentInfo.getCardNumber(), paymentInfo.getNameOnTheCard(), paymentInfo.getCardExpiryDate().toString(), paymentInfo.getSecurityCode(), paymentInfo.isDefault(), paymentInfo.getPaymentName());
         }).collect(Collectors.toList());
     }
 

@@ -46,4 +46,6 @@ public class PaymentInfo implements Serializable {
 
     @Column(name = "IS_DEFAULT")
     private boolean isDefault;
+
+    private String paymentName;
 }

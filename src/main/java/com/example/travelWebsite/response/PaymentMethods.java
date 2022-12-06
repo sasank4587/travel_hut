@@ -12,9 +12,11 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentMethods {
+    private Integer id;
     private String cardNumber;
     private String nameOnTheCard;
-    private Date expiryDate;
+    private String expiryDate;
     private String securityCode;
     private boolean isDefault;
+    private String paymentName;
 }

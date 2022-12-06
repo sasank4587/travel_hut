@@ -25,4 +25,5 @@ public class UserRequest {
     private Date expiryDate;
     private String securityCode;
     private boolean isDefault;
+    private String paymentName;
 }

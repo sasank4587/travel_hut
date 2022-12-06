@@ -17,4 +17,6 @@ public interface FlightScheduleRepository extends JpaRepository<FlightSchedule, 
     List<FlightSchedule> findBySourceCity(City sourceCity);
 
     List<FlightSchedule> findBySourceCityAndDestinationCity(City sourceCity, City destinationCity);
+
+    FlightSchedule findByFlightReference(String reference);
 }

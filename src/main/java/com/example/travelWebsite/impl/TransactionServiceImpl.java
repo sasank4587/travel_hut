@@ -202,6 +202,7 @@ public class TransactionServiceImpl implements TransactionService {
         flightResponse.setEndDate(flightSchedule.getEndDate());
         flightResponse.setLogo(flightSchedule.getFlight().getLogo());
         flightResponse.setMiles(flightSchedule.getMileage());
+        flightResponse.setFlightReference(flightSchedule.getFlightReference());
         return flightResponse;
     }
 

@@ -35,4 +35,14 @@ public class FlightController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(path = "/status/{flightId}")
+    private ResponseEntity<?> getFlightStatus(@PathVariable(value = "flightId") String id){
+        try {
+            return new ResponseEntity<>(flightService.getFlightStatus(id), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

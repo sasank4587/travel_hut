@@ -4,6 +4,7 @@ import com.example.travelWebsite.collections.User;
 import com.example.travelWebsite.exception.PaymentMethodAlreadyExists;
 import com.example.travelWebsite.exception.UserAlreadyExists;
 import com.example.travelWebsite.exception.UserDoesNotExist;
+import com.example.travelWebsite.request.AddFeedbackRequest;
 import com.example.travelWebsite.request.AuthenticationRequest;
 import com.example.travelWebsite.request.PaymentRequest;
 import com.example.travelWebsite.request.UserRequest;
@@ -54,6 +55,22 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/{userId}/{paymentId}")
+    private ResponseEntity<?> makeDefault(@PathVariable(value = "paymentId")Integer paymentId, @PathVariable(value = "userId")Integer id){
+        try {
+            return new ResponseEntity<>(userService.makePaymentDefault(paymentId, id), HttpStatus.OK);
+        } catch (UserDoesNotExist userDoesNotExist){
+            return new ResponseEntity<>(new ErrorResponse("Given username does not exist."),
+                    HttpStatus.NOT_FOUND);
+        } catch (PaymentMethodAlreadyExists paymentMethodAlreadyExists){
+            return new ResponseEntity<>(new ErrorResponse("Given Payment method already exists"),
+                    HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/{userId}/profile")
     private ResponseEntity<?> getUserProfileDetails(@PathVariable Integer userId){
         try {
@@ -90,6 +107,16 @@ public class UserController {
             return new ResponseEntity<>(new ErrorResponse("Bad Credentials "+username),HttpStatus.UNAUTHORIZED);
         }
         return new ResponseEntity<>(userService.findByUsername(username),HttpStatus.OK);
+    }
+
+    @PostMapping("/feedback")
+    public ResponseEntity<?> addFeedback(@RequestBody AddFeedbackRequest addFeedbackRequest){
+        try {
+            return new ResponseEntity<>(userService.addFeedback(addFeedbackRequest),HttpStatus.OK);
+        }catch(Exception e) {
+            return new ResponseEntity<>(new ErrorResponse("Application has faced an issue."),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 //    @GetMapping
