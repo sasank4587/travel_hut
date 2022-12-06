@@ -29,4 +29,5 @@ public class TransactionRequest {
     private double discountPrice;
     private double redeemedPrice;
     private double offerPrice;
+    private Integer paymentId;
 }

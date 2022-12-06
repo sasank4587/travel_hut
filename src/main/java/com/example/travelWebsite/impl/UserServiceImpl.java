@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
                 paymentInfoRepository.save(paymentInfo);
             }
             PaymentInfo paymentInfo = paymentInfoRepository.findByUserAndCardNumber(user, paymentRequest.getCardNumber());
-            if (Objects.nonNull(paymentInfo.getId())) {
+            if (!Objects.nonNull(paymentInfo) || !Objects.nonNull(paymentInfo.getId())) {
                 addPaymentMethod(user, paymentRequest.getCardNumber(), paymentRequest.getNameOnTheCard(), paymentRequest.getExpiryDate(), paymentRequest.getSecurityCode(), paymentRequest.isDefault(), paymentRequest.getPaymentName());
             } else {
                 throw new PaymentMethodAlreadyExists("Payment method already exists");

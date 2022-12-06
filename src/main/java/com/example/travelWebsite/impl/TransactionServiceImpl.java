@@ -57,19 +57,22 @@ public class TransactionServiceImpl implements TransactionService {
                         transactions.setPromoCode(promoCodeOptional.get());
                     }
                 }
-                user = userOptional.get();
-                user.setTravelMileage(transactionRequest.getRemainingMileage());
-                user = userRepository.save(user);
-                transactions.setUser(user);
-                transactions.setPaymentInfo(paymentInfoRepository.findByUserAndIsDefault(userOptional.get(),true));
-                transactions.setTax(transactionRequest.getTaxPrice());
-                transactions.setDiscountPrice(transactionRequest.getDiscountPrice());
-                transactions.setRedeemedPrice(transactionRequest.getRedeemedPrice());
-                transactions.setOfferPrice(transactionRequest.getOfferPrice());
-                transactions.setTotalCost(transactionRequest.getPrice());
-                transactions.setTotalCostPaid(transactionRequest.getPaidPrice());
-                transactions.setTransactionDate(LocalDateTime.now());
-                transactions = transactionRepository.save(transactions);
+                Optional<PaymentInfo> paymentInfoOptional = paymentInfoRepository.findById(transactionRequest.getPaymentId());
+                if (paymentInfoOptional.isPresent()) {
+                    user = userOptional.get();
+                    user.setTravelMileage(transactionRequest.getRemainingMileage());
+                    user = userRepository.save(user);
+                    transactions.setUser(user);
+                    transactions.setPaymentInfo(paymentInfoOptional.get());
+                    transactions.setTax(transactionRequest.getTaxPrice());
+                    transactions.setDiscountPrice(transactionRequest.getDiscountPrice());
+                    transactions.setRedeemedPrice(transactionRequest.getRedeemedPrice());
+                    transactions.setOfferPrice(transactionRequest.getOfferPrice());
+                    transactions.setTotalCost(transactionRequest.getPrice());
+                    transactions.setTotalCostPaid(transactionRequest.getPaidPrice());
+                    transactions.setTransactionDate(LocalDateTime.now());
+                    transactions = transactionRepository.save(transactions);
+                }
             }
         }
         if (Objects.nonNull(transactions.getId())) {
