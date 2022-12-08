@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
         }
         Feedback feedback = new Feedback();
         feedback.setUser(user);
-        feedback.setOption(addFeedbackRequest.getOption());
+        feedback.setOptions(addFeedbackRequest.getOption());
         feedback.setComments(addFeedbackRequest.getComments());
         feedbackRepository.save(feedback);
         return true;

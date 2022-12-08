@@ -24,10 +24,10 @@ public class Feedback {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "ID")
     private Integer id;
-
+    @Column(name = "COMMENTS")
     private String comments;
-
-    private String option;
+    @Column(name = "OPTIONS")
+    private String options;
 
     @NotFound(action = NotFoundAction.IGNORE)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
