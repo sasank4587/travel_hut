@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,8 @@ public class HotelServiceImpl implements HotelService {
 
     @Override
     public HotelSearchResponse showHotels(HotelSearchRequest hotelSearchRequest) {
-        long number  = ChronoUnit.DAYS.between(hotelSearchRequest.getCheckInDate().toLocalDate(), hotelSearchRequest.getCheckOutDate().toLocalDate());
+//        long number  = ChronoUnit.DAYS.between(hotelSearchRequest.getCheckInDate().toLocalDate(), hotelSearchRequest.getCheckOutDate().toLocalDate());
+        long number  = TimeUnit.DAYS.convert(Math.abs(hotelSearchRequest.getCheckOutDate().getTime() - hotelSearchRequest.getCheckInDate().getTime()),TimeUnit.MILLISECONDS);
         HotelSearchResponse hotelSearchResponse = new HotelSearchResponse();
         City city = cityRepository.findByCityName(hotelSearchRequest.getSourceCity());
         List<Hotel> hotels = hotelRepository.findByCity(city);
